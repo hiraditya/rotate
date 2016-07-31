@@ -2,6 +2,29 @@
 \usepackage{listings}
 \setbeamersize{text margin left=2pt,text margin right=2pt}
 
+\lstset
+{
+  language     = C++,
+  basicstyle=\ttfamily,
+  columns      = flexible,
+  literate     = {-}{{\Processdash}}1,
+  keywordstyle=\color{blue},
+  keepspaces,
+}
+
+%[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+
+\makeatletter
+\newcommand\Processdash%
+{%
+    \lst@ifLmode% if in one-line comment mode
+        -%
+    \else%
+        $-$%
+    \fi%
+}
+\makeatother
+
 \begin{document}
 \title{Implementation of std::rotate algorithm}
 \author{Aditya Kumar}
@@ -17,8 +40,8 @@
   \end{itemize}
 }
 
-\defverbatim[colored]\lstI{
-  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+\defverbatim[colored]\lstH{
+  \begin{lstlisting}
     // I models Forward Iterator
     template<class I> // (until C++11)
     void rotate(I first, I n_first, I last);
@@ -35,17 +58,16 @@
 }
 
 \begin{frame}{What is std::rotate}
-  \lstI
+  \lstH
 \end{frame}
 
 \defverbatim[colored]\lstI{
-  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+  \begin{lstlisting}
     // I models Input Iterator to T
     template <typename T, typename I>
     void insert(vector<T>& v,
                 typename vector<T>::iterator ip,
-                I first, I limit)
-    {
+                I first, I limit) {
       auto n = v.end() - v.begin();
       while (first != limit) {
         v.push_back(*first);
@@ -62,15 +84,14 @@
 
 
 \defverbatim[colored]\lstJ{
-  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+  \begin{lstlisting}
     // I models Bidirectional Iterator
     // f: first
     // m: rotation point
     // l: limit
     // [f, l) is valid and m is in [f, l)
     template <typename I>
-    void rotate(I f, I m, I l)
-    {
+    void rotate(I f, I m, I l) {
       reverse(f, m);
       reverse(m, l);
       reverse(f, l);
@@ -82,16 +103,15 @@
 \lstJ
 }
 
-\defverbatim[colored]\lstJ{
-  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+\defverbatim[colored]\lstK{
+  \begin{lstlisting}
     // I models Forward Iterator
     // f: first
     // m: rotation point
     // l: limit
     // [f, l) is valid and m is in [f, l)
     template <typename I>
-    void rotate(I f, I m, I l)
-    {
+    void rotate(I f, I m, I l) {
       pair<I, I> p = swap_ranges(f, m, m, l);
       I u = p.first;
       I v = p.second;
@@ -104,7 +124,33 @@
 }
 
 \frame{\frametitle{Implementation using forward iterator}
-\lstJ
+\lstK
+}
+
+\defverbatim[colored]\lstL{
+  \begin{lstlisting}
+    // I models Forward Iterator
+    // f: first
+    // m: rotation point
+    // l: limit
+    // [f, l) is valid and m is in [f, l)
+    template <typename I>
+    pair<I, I> rotate(I f, I m, I l) {
+      DISTANCE_TYPE(I) n = gcd(m - f, l - m);
+      rotate_iterator_action<I> action(f, m, l);
+      while (n > 0) {
+        --n;
+        do_cycle(f + n, action);
+      }
+      I n_m = f + (l - m);
+      return (n_m < m) ? pair<I, I>(n_m, m)
+                       : pair<I, I>(m, n_m);
+    }
+  \end{lstlisting}
+}
+
+\frame{\frametitle{Implementation using random-access iterator}
+  \lstL
 }
 
 \end{document}
