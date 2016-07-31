@@ -1,4 +1,7 @@
 \documentclass{beamer}
+\usepackage{listings}
+\setbeamersize{text margin left=2pt,text margin right=2pt}
+
 \begin{document}
 \title{Implementation of std::rotate algorithm}
 \author{Aditya Kumar}
@@ -7,10 +10,101 @@
 
 \frame{\titlepage}
 
-\frame{\frametitle{std::rotate(Introduction) }
+\frame{\frametitle{std::rotate(Introduction)}
   \begin{itemize}
   \item What is std::rotate 
   \item Uses of std::rotate
   \end{itemize}
 }
+
+\defverbatim[colored]\lstI{
+  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+    // I models Forward Iterator
+    template<class I> // (until C++11)
+    void rotate(I first, I n_first, I last);
+
+    template<class I> // (since C++11)
+    I rotate(I first, I n_first, I last);
+
+    Performs a left rotation on a range of elements.
+
+    vector<int> s{0, 1, 2, 2, 3, 4, 5, 7, 7, 10};
+    rotate(s.begin(), s.begin()+1, s.end());
+    // rotate left : 1, 2, 2, 3, 4, 5, 7, 7, 10, 0
+  \end{lstlisting}
+}
+
+\begin{frame}{What is std::rotate}
+  \lstI
+\end{frame}
+
+\defverbatim[colored]\lstI{
+  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+    // I models Input Iterator to T
+    template <typename T, typename I>
+    void insert(vector<T>& v,
+                typename vector<T>::iterator ip,
+                I first, I limit)
+    {
+      auto n = v.end() - v.begin();
+      while (first != limit) {
+        v.push_back(*first);
+        ++first;
+      }
+      rotate(ip, v.begin() + n, v.end());
+    }
+  \end{lstlisting}
+}
+
+\begin{frame}{Inserting elements in vector using rotate in O(n)}
+  \lstI
+\end{frame}
+
+
+\defverbatim[colored]\lstJ{
+  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+    // I models Bidirectional Iterator
+    // f: first
+    // m: rotation point
+    // l: limit
+    // [f, l) is valid and m is in [f, l)
+    template <typename I>
+    void rotate(I f, I m, I l)
+    {
+      reverse(f, m);
+      reverse(m, l);
+      reverse(f, l);
+    }
+  \end{lstlisting}
+}
+
+\frame{\frametitle{Implementation using bidirectional iterator}
+\lstJ
+}
+
+\defverbatim[colored]\lstJ{
+  \begin{lstlisting}[language=C++,basicstyle=\ttfamily,keywordstyle=\color{red}]
+    // I models Forward Iterator
+    // f: first
+    // m: rotation point
+    // l: limit
+    // [f, l) is valid and m is in [f, l)
+    template <typename I>
+    void rotate(I f, I m, I l)
+    {
+      pair<I, I> p = swap_ranges(f, m, m, l);
+      I u = p.first;
+      I v = p.second;
+      if (v != l)
+        rotate(u, v, l);
+      else if (u != m)
+        rotate(u, m, l);
+    }
+  \end{lstlisting}
+}
+
+\frame{\frametitle{Implementation using forward iterator}
+\lstJ
+}
+
 \end{document}
