@@ -78,10 +78,25 @@
   \end{lstlisting}
 }
 
-\begin{frame}{Inserting elements in vector using rotate in O(n)}
+\begin{frame}{Uses: Inserting elements in vector using rotate in O(n)}
   \lstI
 \end{frame}
 
+\defverbatim[colored]\lstI{
+  \begin{lstlisting}
+    // It models Random Access Iterator
+    template <typename It>
+    auto slide(It f, It l, It p) -> std::pair<It, It> {
+      if (p < f) return { p, std::rotate(p, f, l) };
+      if (l < p) return { std::rotate(f, l, p), p };
+      return { f, l };
+    }
+  \end{lstlisting}
+}
+
+\begin{frame}{Uses: Sliding a continuous set of elements in a container to another position}
+  \lstI
+\end{frame}
 
 \defverbatim[colored]\lstJ{
   \begin{lstlisting}
